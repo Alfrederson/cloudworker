@@ -11,7 +11,7 @@ export function formulario( router ){
             throw new Error("não autenticado")
         const
             tenant_id = ctx.params.tenant_id
-        if(ctx.claims.id !== tenant_id)
+        if(ctx.claims.id != tenant_id)
             throw new Error("forminho não é seu")
 
         const data = await ctx.env.conn.execute('SELECT * FROM contact_form WHERE tenant_id=?', [tenant_id])
@@ -55,7 +55,8 @@ export function formulario( router ){
         const
             tenant_id = ctx.params.tenant_id,
             contact_id = ctx.params.contact_id
-        if(ctx.claims.id !== tenant_id)
+            
+        if(ctx.claims.id != tenant_id)
             throw new Error("forminho não é seu")            
 
         const result = await ctx.env.conn.execute(
