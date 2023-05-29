@@ -15,7 +15,9 @@ export function formulario( router ){
             throw new Error("forminho não é seu")
 
         const data = await ctx.env.conn.execute('SELECT * FROM contact_form WHERE tenant_id=?', [tenant_id])
-        return new Response(JSON.stringify(data.rows,1," "))
+        return new Response(
+            JSON.stringify(data.rows,1," ")
+        )
     })
 
     // coloca resposta no formulário.
@@ -41,7 +43,9 @@ export function formulario( router ){
                 'INSERT INTO contact_form(tenant_id, name, email, message) VALUES(?,?,?,?)',
                 [tenant_id, name, email, message]
             )
-            return new Response(JSON.stringify({"msg" : "registro inserido", "id" : result.insertId},1," "))
+            return new Response(
+                JSON.stringify({"msg" : "registro inserido"},1," ")
+            )
     })
 
     // deleta resposta do formulário
@@ -62,6 +66,8 @@ export function formulario( router ){
         if(result.rowsAffected < 1)
             throw new Error("nenhum registro removido");
 
-        return new Response(JSON.stringify({"msg" : "registro removido"},1," "))
+        return new Response(
+            JSON.stringify({"msg" : "registro removido"},1," ")
+        )
     })
 }

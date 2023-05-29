@@ -1,7 +1,5 @@
-
 import { Router } from "cloudworker-router"
 import jwt from "@tsndr/cloudflare-worker-jwt"
-
 
 /**
  * Criar conta, fazer login.

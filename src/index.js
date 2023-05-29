@@ -8,22 +8,30 @@ const
 	router = new Router()
 
 router.use( bodyparser )
+
 router.use( async (ctx,next)=>{
 	try{
-		return await next()
+		let response = await next()
+		response.headers.set('Access-Control-Allow-Origin',ctx.request.headers.get("origin"))
+		return response
 	}catch(e){
 		if(e instanceof DatabaseError){
 			console.log(e)
 			e.message = "erro no banco de dados. mande o suporte checar o log."
 		}
-		return new Response(e.message,{
-			status: 500
+		return new Response(JSON.stringify(e.message),{
+			status: 400,
+			headers : {
+				"content-type": "application/json"
+			}
 		})
 	}
 })
 
 auth( router )
 formulario( router )
+
+router.use(router.allowedMethods());
 
 export default {
 	async fetch(req, env, ctx){		
@@ -40,7 +48,8 @@ export default {
 		// dentro do router não deu mais certo,
 		// então coloco dentro do env, que vai aparecer dentro
 		// do context.
+
 		env.conn = connect(config)
-		return router.handle(req, env, ctx)
+		return await router.handle(req,env,ctx)
 	}
 }
