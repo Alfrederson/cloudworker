@@ -1,0 +1,17 @@
+{
+  "name": "formulario",
+  "version": "0.0.0",
+  "devDependencies": {
+    "wrangler": "3.0.1"
+  },
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@planetscale/database": "^1.7.0",
+    "@tsndr/cloudflare-worker-jwt": "^2.2.1",
+    "cloudworker-router": "^4.1.4"
+  }
+}
