@@ -75,4 +75,17 @@ export function auth( router ){
         )
         return new Response( JSON.stringify({ tok }) )
     })
+
+    // renovar o token
+    router.post("/auth/refresh", async ctx => {
+        const { claims } = ctx
+        if( !claims )
+            throw new Error("não autenticado")
+        claims.iat = undefined
+        let tok = await jwt.sign(
+            claims,
+            ctx.env.JWT_SECRET
+        )
+        return new Response( JSON.stringify( {tok} ) )
+    })
 }

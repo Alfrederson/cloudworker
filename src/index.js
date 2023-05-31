@@ -12,7 +12,9 @@ router.use( bodyparser )
 router.use( async (ctx,next)=>{
 	try{
 		let response = await next()
-		response.headers.set('Access-Control-Allow-Origin',ctx.request.headers.get("origin"))
+//		response.headers.set('Access-Control-Allow-Origin',ctx.request.headers.get("origin"))
+		response.headers.set('Access-Control-Allow-Origin',"*")
+
 		return response
 	}catch(e){
 		if(e instanceof DatabaseError){
