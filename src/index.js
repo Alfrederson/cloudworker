@@ -10,24 +10,25 @@ const
 router.use( bodyparser )
 
 router.use( async (ctx,next)=>{
+	let response
 	try{
-		let response = await next()
-//		response.headers.set('Access-Control-Allow-Origin',ctx.request.headers.get("origin"))
-		response.headers.set('Access-Control-Allow-Origin',"*")
-
-		return response
+		response = await next()
 	}catch(e){
 		if(e instanceof DatabaseError){
 			console.log(e)
 			e.message = "erro no banco de dados. mande o suporte checar o log."
 		}
-		return new Response(JSON.stringify(e.message),{
+		response = new Response(JSON.stringify(e.message),{
 			status: 400,
 			headers : {
 				"content-type": "application/json"
 			}
 		})
 	}
+	response.headers.set('Access-Control-Max-Age','84600')
+	response.headers.set('Access-Control-Allow-Origin',"*")
+	response.headers.append('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept, Authorization')
+	return response
 })
 
 auth( router )

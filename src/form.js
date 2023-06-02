@@ -83,7 +83,10 @@ export function formulario( router ){
             E("forminho inexistente ou ele não é seu.")
         // pega as respostas.
         const answers = await ctx.env.conn.execute('SELECT answer_id,name,email,message FROM answers WHERE form_id=?',[ctx.params.form_id])
-        return J( answers.rows )
+        return J({
+            form : formRecord.rows[0],
+            answers : answers.rows
+        })
     })
 
     // ve as respostas de um form público
