@@ -72,7 +72,7 @@ export function formulario( router ){
             E("form inexistente ou não pertence ao usuário");
         return J({
             "msg"       : "ok!",
-            "id"        : id,
+            "id"        : form_id,
             "visibility": visibility,
             "name"      : name
         })
@@ -111,7 +111,8 @@ export function formulario( router ){
         })
     })
 
-    // ve as respostas de um form
+    // lista as respostas de um form.
+    // isso mostra as mensagens apenas de forma abreviada.
     router.get("/form/:form_id", async ctx =>{
         if(!ctx.claims)
             E("não autenticado")
@@ -121,7 +122,7 @@ export function formulario( router ){
         if(formRecord.rows.length == 0)
             E("forminho inexistente ou ele não é seu.")
         // pega as respostas.
-        const answers = await ctx.env.conn.execute('SELECT answer_id,name,email,message FROM answers WHERE form_id=?',[ctx.params.form_id])
+        const answers = await ctx.env.conn.execute(`SELECT answer_id,ip,name,email, CONCAT(LEFT(message, 35),CASE WHEN LENGTH(message) > 35 THEN '...' ELSE '' END) as message FROM answers WHERE form_id=?`,[ctx.params.form_id])
         return J({
             form : formRecord.rows[0],
             answers : answers.rows
@@ -144,6 +145,22 @@ export function formulario( router ){
                 [ctx.params.form_id, parseInt(ctx.params.from), parseInt(ctx.params.count)]
             )
         return J( answers.rows )
+    })
+
+    // le uma resposta do formulário
+    router.get("/answer/:form_id/:answer_id", async ctx =>{
+        if(!ctx.claims)
+            E("não autenticado")
+        const
+            formRecord = await ctx.env.conn.execute('SELECT * FROM forms WHERE id=? AND user_id=? LIMIT 1', [ctx.params.form_id,ctx.claims.id])
+        if(formRecord.rows.length==0)
+            E("forminho inexistente ou não é seu.")
+        const answer = await ctx.env.conn.execute(
+            'SELECT ip,name,email,message FROM answers WHERE form_id=? AND answer_id=? LIMIT 1',[ctx.params.form_id,ctx.params.answer_id]
+        )
+        if(answer.rows.length==0)
+            E("resposta não localizada")
+        return J(answer.rows[0])
     })
 
     // deleta resposta do formulário
@@ -183,8 +200,8 @@ export function formulario( router ){
             E("forminho inexistente.")
 
         const result = await ctx.env.conn.execute(
-            'INSERT INTO answers(form_id, name, email, message) VALUES(?,?,?,?)',
-            [ctx.params.form_id, name, email, message]
+            'INSERT INTO answers(form_id, name, email, message,ip) VALUES(?,?,?,?,?)',
+            [ctx.params.form_id, name, email, message, ctx.ip]
         )
 
         return J({"msg" : "resposta inserida!"})

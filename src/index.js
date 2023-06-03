@@ -3,7 +3,6 @@ import { connect, DatabaseError } from '@planetscale/database';
 
 import { formulario } from "./form"
 import { auth } from "./auth"
-import * as db from "./db";
 
 const
 	router = new Router()
