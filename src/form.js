@@ -2,6 +2,24 @@ import { Router } from "cloudworker-router"
 
 import { randomString, J, E } from "./util.js"
 
+
+const query = ctx => ctx.env.conn.execute
+
+function validarForm(ctx){
+    const
+        { form_name, is_public } = ctx.body
+    if(!form_name)
+        E("sem form_name");
+    if(form_name.length < 5)
+        E("form_name menor que 5 caracteres")
+    if(form_name.length > 128)
+        E("form_name maior que 128 caracteres")
+    if(!is_public)
+        E("sem is_public")
+    if(!["true","false"].includes(is_public))
+        E("is_public deve ser true ou false")
+    return { form_name, is_public }
+}
 /**
  * Formulário para aceitar respostas.
  * @param {Router} router 
@@ -13,21 +31,10 @@ export function formulario( router ){
         if(!ctx.claims)
             E("não autenticado")
         const
-            { form_name, is_public } = ctx.body;
-        if(!form_name)
-            E("sem form_name");
-        if(form_name.length < 5)
-            E("form_name curto demais")
-        if(form_name.length > 30)
-            E("form_name longo demais")
-        if(!is_public)
-            E("sem is_public")
-        if(!["true","false"].includes(is_public))
-            E("is_public deve ser true ou false")
+            { form_name, is_public } = validarForm(ctx.body);
 
         const form_id = randomString(20)
-
-        const result = await ctx.env.conn.execute(
+        const result = await query(ctx)(
             "INSERT INTO forms (id,user_id,is_public,name) VALUES(?,?,?,?)",
             [form_id, ctx.claims.id, is_public === "true", form_name]
         )
@@ -37,11 +44,34 @@ export function formulario( router ){
             "id"  : form_id
         })
     })
+    // editar um form
+    router.put("/form/:form_id", async ctx =>{
+        if(!ctx.claims)
+            E("não autenticado")
+        const
+            { form_name, is_public } = validarForm(ctx.body);
+
+        const form_id = ctx.params.form_id
+
+        const result = await query(ctx)(
+            'UPDATE forms SET is_public = ?, name = ? WHERE id = ? AND user_id = ?',
+            [is_public, form_name, form_id, claims.id]
+        )
+        if(result.rowsAffected == 0)
+            E("form inexistente ou não pertence ao usuário");
+        return J({
+            "msg"       : "ok!",
+            "id"        : form_id,
+            "is_public" : is_public,
+            "name"      : form_name
+        })
+    })
+
     // ver meus forms
     router.get("/forms", async ctx => {
         if(!ctx.claims)
             E("não autenticado")
-        const formList = await ctx.env.conn.execute(
+        const formList = await query(ctx)(
             'SELECT id,name,is_public FROM forms WHERE user_id=?',
             [ctx.claims.id]
         )
@@ -69,8 +99,6 @@ export function formulario( router ){
             "extra": answerDeletionResult.rowsAffected + " respostas apagadas"
         })
     })
-
-    // TODO: alterar um form.
 
     // ve as respostas de um form
     router.get("/form/:form_id", async ctx =>{
