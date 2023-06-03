@@ -3,6 +3,7 @@ import { connect, DatabaseError } from '@planetscale/database';
 
 import { formulario } from "./form"
 import { auth } from "./auth"
+import * as db from "./db";
 
 const
 	router = new Router()
@@ -47,11 +48,6 @@ export default {
 					return fetch(url, init);
 				}				
 			}	
-		// quando botei o bodyparser, colocar a conexão
-		// dentro do router não deu mais certo,
-		// então coloco dentro do env, que vai aparecer dentro
-		// do context.
-
 		env.conn = connect(config)
 		return await router.handle(req,env,ctx)
 	}
