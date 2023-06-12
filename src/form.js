@@ -1,6 +1,6 @@
 import { Router } from "cloudworker-router"
 
-import { randomString, J, E } from "./util.js"
+import { randomString, E } from "./util.js"
 
 
 
@@ -43,10 +43,10 @@ export function formulario( router ){
             [form_id, ctx.claims.id, visibility, name]
         )
 
-        return J({
+        return {
             "msg" : "forminho criado",
             "id"  : form_id
-        })
+        }
     })
     // editar um form
     //
@@ -61,7 +61,7 @@ export function formulario( router ){
         const
             { name, visibility } = extrairForm(ctx),
 
-            form_id = ctx.params.id,
+            form_id = ctx.params.form_id,
 
             result = await ctx.env.conn.execute(
                 'UPDATE forms SET visibility = ?, name = ? WHERE id = ? AND user_id = ?',
@@ -70,12 +70,12 @@ export function formulario( router ){
 
         if(result.rowsAffected == 0)
             E("form inexistente ou não pertence ao usuário");
-        return J({
+        return {
             "msg"       : "ok!",
             "id"        : form_id,
             "visibility": visibility,
             "name"      : name
-        })
+        }
     })
 
     // ver meus forms
@@ -86,7 +86,7 @@ export function formulario( router ){
             'SELECT id,name,visibility FROM forms WHERE user_id=?',
             [ctx.claims.id]
         )
-        return J( formList.rows )
+        return formList.rows
     })
     // apaga um form
     router.delete("/form/:form_id", async ctx =>{
@@ -105,10 +105,10 @@ export function formulario( router ){
             'DELETE FROM answers WHERE form_id=?',
             [ctx.params.form_id]
         )
-        return J({
+        return {
             "msg" : "forminho apagado",
             "extra": answerDeletionResult.rowsAffected + " respostas apagadas"
-        })
+        }
     })
 
     // lista as respostas de um form.
@@ -123,10 +123,10 @@ export function formulario( router ){
             E("forminho inexistente ou ele não é seu.")
         // pega as respostas.
         const answers = await ctx.env.conn.execute(`SELECT answer_id,ip,name,email, CONCAT(LEFT(message, 35),CASE WHEN LENGTH(message) > 35 THEN '...' ELSE '' END) as message FROM answers WHERE form_id=?`,[ctx.params.form_id])
-        return J({
+        return {
             form : formRecord.rows[0],
             answers : answers.rows
-        })
+        }
     })
 
     // ve as respostas de um form público
@@ -144,7 +144,7 @@ export function formulario( router ){
                 "SELECT name,message FROM answers WHERE form_id = ? ORDER BY answer_id DESC LIMIT ?, ?",
                 [ctx.params.form_id, parseInt(ctx.params.from), parseInt(ctx.params.count)]
             )
-        return J( answers.rows )
+        return answers.rows
     })
 
     // le uma resposta do formulário
@@ -160,7 +160,7 @@ export function formulario( router ){
         )
         if(answer.rows.length==0)
             E("resposta não localizada")
-        return J(answer.rows[0])
+        return answer.rows[0]
     })
 
     // deleta resposta do formulário
@@ -179,7 +179,7 @@ export function formulario( router ){
         )
         if(result.rowsAffected < 1)
             E("nenhum registro removido");
-        return J({"msg" : "resposta removida"})
+        return {"msg" : "resposta removida"}
     })
 
     // coloca resposta no formulário.
@@ -204,6 +204,6 @@ export function formulario( router ){
             [ctx.params.form_id, name, email, message, ctx.ip]
         )
 
-        return J({"msg" : "resposta inserida!"})
+        return {"msg" : "resposta inserida!"}
     })
 }

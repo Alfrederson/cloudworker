@@ -46,7 +46,7 @@ export function auth( router ){
                 user,
                 ctx.env.JWT_SECRET
             )
-            return new Response( JSON.stringify({ tok }) )            
+            return { tok }            
         }catch(e){
             console.log(e.message)
             throw new Error("provavelmente já existe uma conta com esse email ou com essa senha.")
@@ -73,7 +73,7 @@ export function auth( router ){
             user,
             ctx.env.JWT_SECRET
         )
-        return new Response( JSON.stringify({ tok }) )
+        return { tok }
     })
 
     // renovar o token
@@ -86,6 +86,6 @@ export function auth( router ){
             claims,
             ctx.env.JWT_SECRET
         )
-        return new Response( JSON.stringify( {tok} ) )
+        return {tok}
     })
 }
