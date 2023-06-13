@@ -60,9 +60,7 @@ export function formulario( router ){
             E("não autenticado")
         const
             { name, visibility } = extrairForm(ctx),
-
             form_id = ctx.params.form_id,
-
             result = await ctx.env.conn.execute(
                 'UPDATE forms SET visibility = ?, name = ? WHERE id = ? AND user_id = ?',
                 [visibility, name, form_id, ctx.claims.id]
@@ -77,13 +75,8 @@ export function formulario( router ){
             "name"      : name
         }
     })
-
     // ver meus forms
     router.get("/forms", async ctx => {
-
-/*
-;
-*/
         if(!ctx.claims)
             E("não autenticado")
         const formList = await ctx.env.conn.execute(
@@ -160,14 +153,16 @@ export function formulario( router ){
         if(!ctx.claims)
             E("não autenticado")
         const
-            formRecord = await ctx.env.conn.execute('SELECT * FROM forms WHERE id=? AND user_id=? LIMIT 1', [ctx.params.form_id,ctx.claims.id])
-        if(formRecord.rows.length==0)
-            E("forminho inexistente ou não é seu.")
-        const answer = await ctx.env.conn.execute(
-            'SELECT ip,name,email,message FROM answers WHERE form_id=? AND answer_id=? LIMIT 1',[ctx.params.form_id,ctx.params.answer_id]
-        )
-        if(answer.rows.length==0)
-            E("resposta não localizada")
+            answer = await ctx.env.conn.execute(`
+            SELECT a.ip, a.name, a.email, a.message
+            FROM answers AS a JOIN forms AS f
+            ON f.id = a.form_id
+            WHERE f.id = ? AND f.user_id = ? AND a.answer_id = ?
+            LIMIT 1;                    
+            `,[ctx.params.form_id, ctx.claims.id, ctx.params.answer_id])
+        if(answer.rows.length==0){
+            E("resposta ou form não localizado.")
+        }
         return answer.rows[0]
     })
 
