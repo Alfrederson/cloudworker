@@ -80,10 +80,18 @@ export function formulario( router ){
 
     // ver meus forms
     router.get("/forms", async ctx => {
+
+/*
+;
+*/
         if(!ctx.claims)
             E("não autenticado")
         const formList = await ctx.env.conn.execute(
-            'SELECT id,name,visibility FROM forms WHERE user_id=?',
+            `SELECT forms.id, forms.name, forms.visibility, COUNT(answers.answer_id) AS answer_count
+            FROM forms LEFT JOIN answers
+            ON forms.id = answers.form_id
+            WHERE forms.user_id=?
+            GROUP BY forms.id`,
             [ctx.claims.id]
         )
         return formList.rows
