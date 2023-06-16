@@ -1,5 +1,6 @@
 import { Router } from "cloudworker-router"
 import jwt from "@tsndr/cloudflare-worker-jwt"
+import { calcularHash, verificarSenha } from "./crypto/crypto"
 
 /**
  * Criar conta, fazer login.
@@ -35,10 +36,10 @@ export function auth( router ){
         }        
         // isso falha se violar a constraint unique do email.
         try{
-            // TODO: botar um bcrypt aqui
+            const hashedPassword = await calcularHash(password)
             const result = await ctx.env.conn.execute(
                 "INSERT INTO user (name,email,password) VALUES(?,?,?)",
-                [name,email.toLowerCase(),password]
+                [name,email.toLowerCase(),hashedPassword]
             )    
             // envia um token de autenticação se der certo.
             let user = { id: result.insertId, name, email}
@@ -63,12 +64,17 @@ export function auth( router ){
             throw new Error("requisição inválida. checar campos: email, password")
         }
         const result = await ctx.env.conn.execute(
-            "SELECT id,name,email FROM user WHERE (email = ? AND password = ?)",
-            [email,password]
+            "SELECT id,name,email,password FROM user WHERE (email = ?)",
+            [email]
         )
         if(result.rows.length == 0)
-            throw new Error("usuário não encontrado ou senha incorreta.");
+            throw new Error("email não encontrado ou senha incorreta.");
         let user = result.rows[0]
+
+        const bate = await verificarSenha(password, user.password)
+        if(!bate)
+            throw new Error("email não encontrado ou senha incorreta.")
+        user.password = undefined
         let tok = await jwt.sign(
             user,
             ctx.env.JWT_SECRET
@@ -87,5 +93,10 @@ export function auth( router ){
             ctx.env.JWT_SECRET
         )
         return {tok}
+    })
+
+    router.get("/auth/hash/:oque", async ctx =>{
+        let hash = await calcularHash(ctx.params.oque)
+        return hash
     })
 }
