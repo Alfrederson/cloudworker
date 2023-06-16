@@ -29,7 +29,7 @@ export function auth( router ){
     router.post("/auth/signup", async ctx =>{
         const { name, email, password } = ctx.body
         validar.email(email)
-        validar.senha(senha)
+        validar.senha(password)
         validar.nome (name) 
         // isso falha se violar a constraint unique do email.
         try{

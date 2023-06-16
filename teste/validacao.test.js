@@ -6,7 +6,7 @@ import validar from "../src/validacao/validacao.js";
     ["a",true],
     ["a@b.c",false],
     ["fulano@bol.com",false],
-    ["fulan o@bo l",true],
+    ["banr718@r718.co m",true],
     ["caca@baba.com.ccc",false],
     ["fuf@bob.com.br",false]
 ].forEach( caso =>{
