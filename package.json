@@ -9,7 +9,8 @@
   "scripts": {
     "start": "wrangler dev",
     "deploy": "wrangler deploy",
-    "test": "node teste/crypto.test.js"
+    "test-crypto": "node teste/crypto.test.js",
+    "test-validacao": "node teste/validacao.test.js"
   },
   "dependencies": {
     "@planetscale/database": "^1.7.0",

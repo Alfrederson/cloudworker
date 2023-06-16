@@ -1,5 +1,6 @@
 import { Router } from "cloudworker-router"
 import jwt from "@tsndr/cloudflare-worker-jwt"
+import validar from "./validacao/validacao"
 import { calcularHash, verificarSenha } from "./crypto/crypto"
 
 /**
@@ -27,13 +28,9 @@ export function auth( router ){
     // criar conta
     router.post("/auth/signup", async ctx =>{
         const { name, email, password } = ctx.body
-        if([
-            !name     || name.length < 5      || name.length > 30,
-            !email    || email.length < 5     || email.length > 30,
-            !password || password.length < 6  || password.length > 70,
-        ].some( x => x )){
-            throw new Error("requisição inválida. checar campos: name, email, password")
-        }        
+        validar.email(email)
+        validar.senha(senha)
+        validar.nome (name) 
         // isso falha se violar a constraint unique do email.
         try{
             const hashedPassword = await calcularHash(password)
@@ -57,12 +54,8 @@ export function auth( router ){
     // fazer login
     router.post("/auth/signin", async ctx =>{
         const { email, password } = ctx.body
-        if([
-            !email || email.length < 5 || email.length > 30,
-            !password || password.length < 6 || password.length > 70
-        ].some( x => x)){
-            throw new Error("requisição inválida. checar campos: email, password")
-        }
+        validar.email(email)
+        validar.senha(password)
         const result = await ctx.env.conn.execute(
             "SELECT id,name,email,password FROM user WHERE (email = ?)",
             [email]
