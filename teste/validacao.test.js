@@ -4,6 +4,7 @@ import validar from "../src/validacao/validacao.js";
 [
     ["",true],
     ["a",true],
+    [undefined,true],
     ["a@b.c",false],
     ["fulano@bol.com",false],
     ["banr718@r718.co m",true],
@@ -23,3 +24,32 @@ import validar from "../src/validacao/validacao.js";
         console.log("FALHOU! Eu esperava que " + (esperaExcecao ? "desse" : "não desse") + "exceção")
     }
 })
+
+try{
+    validar  .email("astolfo@bol.com")
+             .nome("Rodeirico")
+             .senha("qwertyoi")
+}catch(e){
+    console.log("FALHOU! Não deveria ter dado throw.")
+}
+
+try{
+    validar .email(undefined)
+            .nome(undefined)
+            .senha(undefined)
+}catch(e){
+    console.log(e.message)
+}
+
+try{
+    validar .email("arnaldo@bol.com")
+            .nome(undefined)
+            .senha(undefined)
+}catch(e){
+    console.log(e.message)
+}
+
+try{
+    validar .numero(-4, )
+}
+

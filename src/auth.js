@@ -2,6 +2,7 @@ import { Router } from "cloudworker-router"
 import jwt from "@tsndr/cloudflare-worker-jwt"
 import validar from "./validacao/validacao"
 import { calcularHash, verificarSenha } from "./crypto/crypto"
+import { E } from "./util"
 
 /**
  * Criar conta, fazer login.
@@ -28,9 +29,9 @@ export function auth( router ){
     // criar conta
     router.post("/auth/signup", async ctx =>{
         const { name, email, password } = ctx.body
-        validar.email(email)
-        validar.senha(password)
-        validar.nome (name) 
+        validar .email(email)
+                .senha(password)
+                .nome (name) 
         // isso falha se violar a constraint unique do email.
         try{
             const hashedPassword = await calcularHash(password)
@@ -47,26 +48,26 @@ export function auth( router ){
             return { tok }            
         }catch(e){
             console.log(e.message)
-            throw new Error("provavelmente já existe uma conta com esse email ou com essa senha.")
+            E("provavelmente já existe uma conta com esse email ou com essa senha.")
         }
     })
 
     // fazer login
     router.post("/auth/signin", async ctx =>{
         const { email, password } = ctx.body
-        validar.email(email)
-        validar.senha(password)
+        validar .email(email)
+                .senha(password)
         const result = await ctx.env.conn.execute(
             "SELECT id,name,email,password FROM user WHERE (email = ?)",
             [email]
         )
         if(result.rows.length == 0)
-            throw new Error("email não encontrado ou senha incorreta.");
+            E("email não encontrado ou senha incorreta.");
         let user = result.rows[0]
 
         const bate = await verificarSenha(password, user.password)
         if(!bate)
-            throw new Error("email não encontrado ou senha incorreta.")
+            E("email não encontrado ou senha incorreta.")
         user.password = undefined
         let tok = await jwt.sign(
             user,
@@ -79,7 +80,7 @@ export function auth( router ){
     router.post("/auth/refresh", async ctx => {
         const { claims } = ctx
         if( !claims )
-            throw new Error("não autenticado")
+            E("não autenticado")
         claims.iat = undefined
         let tok = await jwt.sign(
             claims,
