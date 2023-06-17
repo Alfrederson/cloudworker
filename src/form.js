@@ -67,7 +67,7 @@ export function formulario( router ){
                 [visibility, name, form_id, ctx.claims.id]
             )
 
-        if(result.rowsAffected == 0)
+        if(result.rowsAffected < 1)
             E("form inexistente ou não pertence ao usuário");
         return {
             msg       : "ok!",
@@ -101,7 +101,7 @@ export function formulario( router ){
             'DELETE FROM forms WHERE id=? AND user_id=?',
             [form_id, ctx.claims.id]
         )
-        if (deletionResult.rowsAffected == 0){
+        if (deletionResult.rowsAffected < 1){
             E("form inexistente ou a operação falhou por outro motivo")
         }
         // apaga as respostas

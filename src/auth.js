@@ -55,25 +55,16 @@ export function auth( router ){
     // fazer login
     router.post("/auth/signin", async ctx =>{
         const { email, password } = ctx.body
-        validar .email(email)
-                .senha(password)
+        validar .email(email) .senha(password)
         const result = await ctx.env.conn.execute(
             "SELECT id,name,email,password FROM user WHERE (email = ?)",
             [email]
         )
-        if(result.rows.length == 0)
-            E("email não encontrado ou senha incorreta.");
         let user = result.rows[0]
-
-        const bate = await verificarSenha(password, user.password)
-        if(!bate)
+        if(!user || !await verificarSenha(password, user.password) )
             E("email não encontrado ou senha incorreta.")
         user.password = undefined
-        let tok = await jwt.sign(
-            user,
-            ctx.env.JWT_SECRET
-        )
-        return { tok }
+        return { tok : await jwt.sign(user, ctx.env.JWT_SECRET) }
     })
 
     // renovar o token
@@ -82,15 +73,10 @@ export function auth( router ){
         if( !claims )
             E("não autenticado")
         claims.iat = undefined
-        let tok = await jwt.sign(
-            claims,
-            ctx.env.JWT_SECRET
-        )
-        return {tok}
+        return {tok : await jwt.sign( claims, ctx.env.JWT_SECRET) }
     })
 
     router.get("/auth/hash/:oque", async ctx =>{
-        let hash = await calcularHash(ctx.params.oque)
-        return hash
+        return await calcularHash(ctx.params.oque)
     })
 }
