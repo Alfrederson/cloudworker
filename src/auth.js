@@ -12,9 +12,9 @@ export function auth( router ){
     // validação de JWT.
     router.use( async (ctx, next) =>{
         let auth = ctx.request.headers.get("authorization")
-        if( !auth ||
+        if( !auth                       ||
             !auth.startsWith("Bearer ") ||
-            (auth.length >= 256 + 7)   ||
+            (auth.length >= 256 + 7)    ||
             (auth.length <= 7))              // token vazio
             return next();
         const tok = auth.substring(7)
@@ -40,12 +40,8 @@ export function auth( router ){
                 [name,email.toLowerCase(),hashedPassword]
             )    
             // envia um token de autenticação se der certo.
-            let user = { id: result.insertId, name, email}
-            let tok = await jwt.sign(
-                user,
-                ctx.env.JWT_SECRET
-            )
-            return { tok }            
+            let user = { id: result.insertId, name, email }
+            return { tok : await jwt.sign(user, ctx.env.JWT_SECRET) }            
         }catch(e){
             console.log(e.message)
             E("provavelmente já existe uma conta com esse email ou com essa senha.")
@@ -58,7 +54,7 @@ export function auth( router ){
         validar .email(email) .senha(password)
         const result = await ctx.env.conn.execute(
             "SELECT id,name,email,password FROM user WHERE (email = ?)",
-            [email]
+            [email.toLowerCase()]
         )
         let user = result.rows[0]
         if(!user || !await verificarSenha(password, user.password) )
@@ -73,7 +69,7 @@ export function auth( router ){
         if( !claims )
             E("não autenticado")
         claims.iat = undefined
-        return {tok : await jwt.sign( claims, ctx.env.JWT_SECRET) }
+        return { tok : await jwt.sign( claims, ctx.env.JWT_SECRET) }
     })
 
     router.get("/auth/hash/:oque", async ctx =>{
