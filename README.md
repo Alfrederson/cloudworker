@@ -66,4 +66,12 @@ CREATE TABLE `forms` (
 ```
 
 
+Pra rodar o teste automatizado:
 
+- criar uma branch testing do banco de dados, criar uma senha SÓ PRA ELA e criar um arquivo .dev.vars na raiz disso aqui com as variáveis de conexão com o banco de dados, e então:
+
+```
+npm run test-api
+```
+
+Isso vai iniciar o Wrangler no modo dev e fazer algumas requisições nele. Ele vai conversar com o próprio planet scale, e toda as escritas/leituras serão feitas em um banco de dados real. Conferir o estado dele depois dos testes.
