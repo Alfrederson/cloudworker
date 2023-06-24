@@ -1,4 +1,16 @@
+Backend disso aqui:
+
+https://github.com/Alfrederson/formitos-ui
+
+Ao vivo:
+
+https://formito.vercel.app/
+
+Isso é feito para rodar dentro do CloudFlare Worker.
+
 Definir variáveis de ambiente no wrangler.toml:
+
+Essas de database vem automaticamente quando faz a integração com o PlanetScale.
 
 ```
 JWT_SECRET
@@ -65,9 +77,5 @@ CREATE TABLE `forms` (
   COLLATE utf8mb4_0900_ai_ci;
 ```
 
-Essas de database vem automaticamente quando faz a integração com o PlanetScale.
-
-
-Isso é o "Backend" disso daqui:
 
 
