@@ -59,7 +59,7 @@ export function formulario( router ){
             { name, visibility } = extrairForm(ctx),
             form_id = ctx.params.form_id
 
-        validar . string ( form_id, {exato : COMPRIMENTO_ID_FORM})
+        validar . string ( form_id, "id do form",{exato : COMPRIMENTO_ID_FORM})
 
         const
             result = await ctx.env.conn.execute(
