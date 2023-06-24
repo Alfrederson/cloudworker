@@ -39,18 +39,6 @@ CREATE TABLE `answers` (
   COLLATE utf8mb4_0900_ai_ci;
 
 
-CREATE TABLE `contact_form` (
-	`id` int NOT NULL AUTO_INCREMENT,
-	`tenant_id` int NOT NULL,
-	`name` varchar(50) NOT NULL,
-	`email` varchar(100) NOT NULL,
-	`message` text NOT NULL,
-	`submission_date` timestamp NULL DEFAULT current_timestamp(),
-	PRIMARY KEY (`id`)
-) ENGINE InnoDB,
-  CHARSET utf8mb4,
-  COLLATE utf8mb4_0900_ai_ci;
-
 
 CREATE TABLE `forms` (
 	`id` varchar(20) NOT NULL,
