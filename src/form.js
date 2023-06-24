@@ -95,7 +95,7 @@ export function formulario( router ){
         if(!ctx.claims)
             E("não autenticado")
         const form_id = ctx.params.form_id
-        validar . string( form_id , {exato : COMPRIMENTO_ID_FORM} )
+        validar . string( form_id , "id do form",{exato : COMPRIMENTO_ID_FORM} )
         // apaga o form
         const deletionResult = await ctx.env.conn.execute(
             'DELETE FROM forms WHERE id=? AND user_id=?',
