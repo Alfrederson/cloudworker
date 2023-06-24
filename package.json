@@ -10,12 +10,13 @@
     "start": "wrangler dev",
     "deploy": "wrangler deploy",
     "test-crypto": "node teste/crypto.test.js",
-    "test-validacao": "node teste/validacao.test.js"
+    "test-validacao": "node teste/validacao.test.js",
+    "test-api": "concurrently --success first --kill-others \"wrangler dev \" \"node teste/api.test.js\""
   },
   "dependencies": {
     "@planetscale/database": "^1.7.0",
     "@tsndr/cloudflare-worker-jwt": "^2.2.1",
     "cloudworker-router": "^4.1.4",
-    "jest": "^29.5.0"
+    "concurrently": "^8.2.0"
   }
 }

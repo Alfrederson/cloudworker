@@ -40,6 +40,7 @@ router.use( async (ctx,next)=>{
 	}catch(e){
 		status = 400
 		if(e instanceof DatabaseError){
+			console.log(e)
 			responseObj = {err : "erro no banco de dados. mande o suporte checar o log."}
 			status = 503
 		}
@@ -60,7 +61,6 @@ router.use( async (ctx,next)=>{
 
 auth( router )
 formulario( router )
-
 
 router.use(router.allowedMethods());
 

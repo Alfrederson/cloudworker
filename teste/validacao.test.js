@@ -49,7 +49,4 @@ try{
     console.log(e.message)
 }
 
-try{
-    validar .numero(-4, )
-}
 
